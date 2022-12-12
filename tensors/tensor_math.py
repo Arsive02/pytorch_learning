@@ -90,3 +90,39 @@ print(z)
 # Useful Tensor operations
 sum_x = torch.sum(x1, dim=0)
 print(sum_x)
+
+print(x1)
+values, indices = torch.max(x1, dim=1)  # Row wise
+print(values, indices)
+
+values, indices = torch.min(x1, dim=0)  # Column wise
+print(values, indices)
+
+abs_x = torch.abs(x1)
+print(abs_x)
+
+z = torch.argmax(x1, dim=1)
+print(z)
+
+z = torch.argmin(x1, dim=0)
+print(z)
+
+mean_x = torch.mean(x1.float(), dim=0)
+print(mean_x)
+
+z = torch.eq(x, y)
+print(z)
+
+sorted_y, indices = torch.sort(y, dim=0, descending=False)
+print(sorted_y)
+
+clamped_x = torch.clamp(x1, min=0.1, max=0.6)
+print(clamped_x)
+
+x = torch.tensor([1, 0, 1, 1, 1], dtype=torch.bool)
+z = torch.any(x)
+print(z)
+
+z = torch.all(x)
+print(z)
+
