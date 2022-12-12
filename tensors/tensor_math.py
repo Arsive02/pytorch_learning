@@ -19,16 +19,15 @@ z = x - y
 print(z)
 
 # Division
-z = torch.true_divide(x, y)     # Element wise
+z = torch.true_divide(x, y)  # Element wise
 print(z)
-
 
 # inplace operations
 t = torch.zeros(3)
-t.add_(x)       # Computationally efficient
+t.add_(x)  # Computationally efficient
 print(t)
 
-t += x          # Not computationally efficient
+t += x  # Not computationally efficient
 
 # Exponentiation
 z = x.pow(2)
@@ -45,7 +44,7 @@ z = x < 0
 print(z)
 
 # Matrix multiplication
-x = torch.rand((2,3))
+x = torch.rand((2, 3))
 y = torch.rand((3, 2))
 z = torch.mm(x, y)
 print(z)
@@ -76,5 +75,18 @@ m = 30
 p = 20
 x1 = torch.rand((batch, n, m))
 x2 = torch.rand((batch, m, p))
-out_bmm = torch.bmm(x1, x2)     # (batch, n, p)
+out_bmm = torch.bmm(x1, x2)  # (batch, n, p)
 print(out_bmm.shape)
+
+# Broadcasting
+x1 = torch.rand((5, 5))
+x2 = torch.rand((1, 5))
+z = x1 - x2
+print(z)
+
+z = x1 ** x2
+print(z)
+
+# Useful Tensor operations
+sum_x = torch.sum(x1, dim=0)
+print(sum_x)
