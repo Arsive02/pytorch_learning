@@ -11,30 +11,38 @@ import torchvision.transforms as transforms  # Transformations we can perform on
 from tqdm import tqdm
 
 
-# Create Fully Connected Network
-class NN(nn.Module):
-    def __init__(self, input_size, num_classes):
-        super(NN, self).__init__()
-        self.fc1 = nn.Linear(input_size, 50)
-        self.fc2 = nn.Linear(50, num_classes)
+class CNN(nn.Module):
+    def __init__(self, in_channels=1, num_classes=10):
+        super(CNN, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=8, kernel_size=(3, 3),
+                               stride=(1, 1), padding=(1, 1))
+        self.pool = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
+        self.conv2 = nn.Conv2d(in_channels=8, out_channels=16, kernel_size=(3, 3),
+                               stride=(1, 1), padding=(1, 1))
+        self.fc1 = nn.Linear(16 * 7 * 7, num_classes)
 
     def forward(self, x):
-        x = self.fc1(x)
+        x = self.conv1(x)
         x = F.relu(x)
-        x = self.fc2(x)
+        x = self.pool(x)
+        x = self.conv2(x)
+        x = F.relu(x)
+        x = self.pool(x)
+        x = x.reshape(x.shape[0], -1)  # Mini batch size, convert remaining dimensions to 1D
+        x = self.fc1(x)
         return x
 
 
 # Checking if model is working
-# model = NN(28 * 28, 10)
-# x = torch.rand((64, 784))  # (mini-batch, input_size)
-# print(model(x).shape)      # (mini-batch, num_classes)
+# model = CNN()
+# x = torch.randn((64, 1, 28, 28))
+# print(model(x).shape)
 
 # SET DEVICE
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # HYPER-PARAMETERS
-input_size = 784
+in_channels = 1
 num_classes = 10
 num_batches = 64
 epochs = 10
@@ -60,7 +68,7 @@ test_loader = DataLoader(dataset=test_dataset,
                          shuffle=True)
 
 # INITIALIZE NETWORK
-model = NN(input_size=input_size, num_classes=num_classes).to(device)
+model = CNN(in_channels=in_channels, num_classes=num_classes).to(device)
 
 # LOSSES AND OPTIMIZER
 criterion = nn.CrossEntropyLoss()
@@ -73,8 +81,6 @@ for epoch in range(epochs):
         # Set the data and target to the device
         data = data.to(device=device)
         targets = targets.to(device=device)
-        # Set the correct shape
-        data = data.reshape([data.shape[0], -1])
 
         # Forward
         scores = model(data)
@@ -103,7 +109,6 @@ def check_accuracy(loader, model):
         for x, y in tqdm(loader):
             x = x.to(device=device)
             y = y.to(device=device)
-            x = x.reshape(x.shape[0], -1)
 
             scores = model(x)
             _, predictions = scores.max(1)
