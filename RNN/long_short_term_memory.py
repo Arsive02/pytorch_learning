@@ -27,17 +27,25 @@ class RNN(nn.Module):
         super(RNN, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size * sequence_length, num_classes)
+        # If we only want the last cell output
+        # self.fc = nn.Linear(hidden_size, num_classes)
+
 
     def forward(self, x):
         # Dimensions -> (num_layers, batch_size, hidden_size)
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
 
         # Forward prop
-        out, _ = self.gru(x, h0)
+        out, _ = self.lstm(x, (h0, c0))
         out = out.reshape(out.shape[0], -1)
         out = self.fc(out)
+
+        # If we only want the last cell output, no need to reshape
+        # out = out[:, -1, :] # [all training examples in a mini batch, last hidden state, all features]
+        # out = self.fc(out)
 
         return out
 
