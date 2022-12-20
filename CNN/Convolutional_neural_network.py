@@ -73,10 +73,34 @@ model = CNN(in_channels=in_channels, num_classes=num_classes).to(device)
 # LOSSES AND OPTIMIZER
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+load_model = False
+
+
+# SAVE CHECKPOINT
+def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
+    print("=> Saving checkpoint")
+    torch.save(state, filename)
+
+
+# LOAD CHECKPOINT
+def load_checkpoint(checkpoint):
+    print("=> loading checkpoint")
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer'])
+
+
+if load_model:
+    load_checkpoint(torch.load("my_checkpoint.pth.tar"))
 
 # TRAIN NETWORK
 for epoch in range(epochs):
     print(f"Epoch {epoch + 1}/{epochs}")
+    if epoch % 2 == 0:
+        checkpoint = {
+            "model_state_dict": model.state_dict(),
+            "optimizer": optimizer.state_dict()
+        }
+        save_checkpoint(checkpoint)
     for batch_idx, (data, targets) in enumerate(tqdm(train_loader)):
         # Set the data and target to the device
         data = data.to(device=device)
